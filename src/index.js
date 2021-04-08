@@ -9,9 +9,10 @@ dotenv.config();
 const { WebClient, LogLevel } = require('@slack/web-api');
 const stp_1_message_config = require('./message_config/step_1');
 const stp_2_message_config = require('./message_config/step_2');
+const help_message = require('./message_config/help');
 
-const oauth_token = process.env.PROD_OAUTH_TOKEN;
-const app_token = process.env.PROD_APP_TOKEN;
+const oauth_token = process.env.TEST_OAUTH_TOKEN;
+const app_token = process.env.TEST_APP_TOKEN;
 
 const client = new WebClient(oauth_token, {
   logLevel: LogLevel.DEBUG,
@@ -32,6 +33,16 @@ app.event('app_mention', async ({ event, context, client, say }) => {
   const user_id = event.user;
 
   try {
+    if (event.text.includes('help')) {
+      client.chat.postEphemeral({
+        channel: event.channel,
+        ...help_message(user_id),
+        user: user_id,
+      });
+
+      return 0;
+    }
+
     client.chat.postMessage({
       channel: event.channel,
       ...stp_1_message_config(user_id),
@@ -48,8 +59,8 @@ app.action('button_click', async ({ body, context, ack, say }) => {
   try {
     const { location, service } = body.state.values;
 
-    const location_val = location?.select.selected_option.value;
-    const service_val = service?.select.selected_option.value;
+    const location_val = location.select.selected_option.value;
+    const service_val = service.select.selected_option.value;
 
     //console.log('location is', location_val, 'serive is', service_val);
 

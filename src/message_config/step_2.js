@@ -7,11 +7,9 @@ const for_each = _.addIndex(_.forEach);
 
 const list_gen = (location, service) => {
   const person_list = map[location][service]['person_list'];
-  // console.log(person_list, 'it is');
   let message = '';
 
   for_each((slack_id, idx) => {
-    console.log('slack id is', slack_id);
     message += `${_.inc(idx)}. <@${slack_id}> \n`;
   })(person_list);
 
